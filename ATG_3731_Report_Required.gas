@@ -1,0 +1,62 @@
+Program.Sub.ScreenSU.Start
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Coded by: JND
+'Project Start Date: 5/15/2011
+'Hooks:
+'  32411
+'Notes:
+'  Quote 2008
+'Revised 6/10/11 by JLH
+
+F.ODBC.Connection!con.OpenConnection(V.Ambient.PDSN,V.Ambient.PUser,V.Ambient.PPass)
+
+F.Intrinsic.Control.CallSub(Load)
+
+Program.Sub.Main.End
+
+Program.Sub.Load.Start
+V.Local.sQuery.Declare(String)
+V.Local.iRet.Declare(Long)
+V.Local.sret.Declare(String)
+V.Local.stext.Declare(String)
+V.Local.sBDF.Declare(String)
+V.Local.iRow.Declare(Long)
+
+V.Local.iRow.Set(V.Passed.selected-row)
+F.Intrinsic.Math.Sub(V.Local.iRow,1,V.Local.iRow)
+F.Intrinsic.BDF.Load("BDF","Aux001")
+F.Intrinsic.BDF.ReadRow("BDF",V.Local.iRow,V.Local.stext)
+F.Intrinsic.String.Split(V.Local.stext,"|~|",V.Local.sBDF)
+
+F.Intrinsic.UI.InputBox("Please Enter Report ID","Report ID","",V.Local.sret)
+
+F.Intrinsic.Control.If(V.Local.sret.trim,=,"")
+	V.Passed.777777.Set(1)
+F.Intrinsic.Control.Else
+	F.odbc.Connection!con.OpenRecordsetRW("rst","SELECT * FROM ATG_3731_WO_SIGN_LOG")
+	F.ODBC.con!rst.AddNew
+	F.ODBC.con!rst.Set!JOB(V.Local.sBDF(0))
+	F.ODBC.con!rst.Set!SUFFIX(V.Local.sBDF(1))
+	F.ODBC.con!rst.Set!SEQUENCE(V.Local.sBDF(2))
+	F.ODBC.con!rst.Set!GSUSer(V.Caller.User)
+	F.ODBC.con!rst.Set!TaskSignOffDate(V.Ambient.Now)
+	F.ODBC.con!rst.Set!Description(V.Local.sBDF(5))
+	F.ODBC.con!rst.Set!ReportNo(V.Local.sret)
+	F.ODBC.con!rst.Update
+	F.ODBC.Connection!con.Close
+F.Intrinsic.Control.EndIf
+
+Program.Sub.Load.End
+
+Program.Sub.Comments.Start
+${$0$}$ATG_3731_Report_Required$}$JCT$}$4/7/2016
+${$1$}$$}$$}$0$}$15880$}$OLS003-PB-PROCESS-PRE-HOOK (On-line GUI)$}$4/7/2016 4:18:18 PM$}$(Program: OLG002; Screen: OLS003)
+
+Program.Sub.Comments.End
+
